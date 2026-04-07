@@ -3,18 +3,60 @@ Varroa-mite-counter POC backend.
 
 Data collection + inference server for the field demo with Andy.
 '''
+import time
 import json
+import magic
+import hashlib
 from pathlib import Path
+from ultralytics import YOLO
+from datetime import datetime, timezone
 
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
+from starlette.requests import Request
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 
-SERVER_DIR = Path(__file__).resolve().parent
-DATA_DIR = SERVER_DIR / 'data'
+ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = ROOT / 'server' / 'data'
+DATA_DIR.mkdir(exist_ok=True)
+
+MAX_UPLOAD_SIZE = 50 * (1024 ** 2) # 50 MiB
+
+mime = magic.Magic(mime=True) # For image upload MIME type checking
+model = YOLO(str(ROOT / 'model' / 'best.pt'), verbose=False) # Safe to call repeatedly
+
+
+# MARK: Helpers
+
+def count_varroa_mites(image_path) -> int:
+    '''
+    Temporary helper function for inference in POST /count.
+    Loads model weights and image, returns an integer.
+    '''
+    t0 = time.perf_counter()
+    '''
+    NB: imgsz, max_det, conf and iou are temporary magic numbers
+    copied directly from https://github.com/jodivaso/varrodetector/blob/main/varroa_mite_gui.py
+    (line 2787 onwards)
+    '''
+    results = model(
+        str(image_path),
+        imgsz=6016,
+        max_det=2000,
+        conf=0.1,
+        iou=0.5,
+        verbose=False,
+        batch=1,
+    )
+
+    elapsed = time.perf_counter() - t0
+    print(f"[count_varroa_mites] Inference: {elapsed:.2f}s")
+    count = len(results[0].boxes.xyxy)
+
+    return count
 
 
 # MARK: Endpoints
@@ -31,7 +73,76 @@ async def count(request: Request):
     Receive input image, store, run inference,
     populate metadata, return predicted varroa mite count.
     '''
-    return JSONResponse({'error':'Not yet implemented'})
+    # Get the image from the request
+    form = await request.form()
+    image = form.get('image')
+
+    if image is None:
+        raise HTTPException(status_code=400, detail='No image uploaded')
+    
+    image_bytes = await image.read()
+
+    # Validate maximum image size
+    if len(image_bytes) > MAX_UPLOAD_SIZE:
+        raise HTTPException(status_code=413, detail=f'Uploaded image is too large (max. {MAX_UPLOAD_SIZE} bytes)')
+
+    # Check the image MIME type
+    mime_type = mime.from_buffer(image_bytes)
+
+    accepted_types = {
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+    } # TODO: Add HEIC, raw
+
+    if mime_type not in accepted_types.keys():
+        raise HTTPException(status_code=400, detail='Unsupported image format')
+
+    # Get and check hash against saved images
+    image_hash = hashlib.sha256(image_bytes).hexdigest()
+
+    # Construct filenames
+    image_filename = image_hash + '.' + accepted_types[mime_type] # Derive extension from mime type
+    metadata_filename = image_hash + '.json'
+
+    if (DATA_DIR / metadata_filename).exists():
+        # We already have this image stored, check metadata and return existing count if not null
+        with open(DATA_DIR / (image_hash + '.json'), 'r') as file:
+            metadata = json.load(file)
+        count = metadata['count']
+        if count is not None:
+            return JSONResponse({'count': count})
+    
+    else:
+        # This is a new file
+        # Save image file
+        with open(DATA_DIR / image_filename, 'wb') as file:
+            file.write(image_bytes)
+
+        # Save image metadata
+        metadata = {
+            'time': datetime.now(timezone.utc).isoformat(),
+            'hash': image_hash,
+            'name': image.filename, # Original name from request Content-Disposition (can be null)
+            'type': mime_type,
+            'size': len(image_bytes),
+            'count': None, # Varroa mite count (for later)
+        }
+        with open(DATA_DIR / metadata_filename, 'w') as file:
+            json.dump(metadata, file, indent=4)
+
+    # Run inference
+    try:
+        count = count_varroa_mites(DATA_DIR / image_filename)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f'Inference failed: {e}')
+
+    # Update metadata
+    metadata['count'] = count
+    with open(DATA_DIR / metadata_filename, 'w') as file:
+        json.dump(metadata, file, indent=4)
+
+    # Return predicted count
+    return JSONResponse({'count': count})
 
 
 # MARK: Application

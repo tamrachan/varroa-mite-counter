@@ -19,7 +19,7 @@ pip install -r requirements.txt
 python server.py
 ```
 
-## Notes
+## Goals
 
 - The `/count` endpoint acts as both an inference request and image upload method.
 - Images are saved to `server/data` as `<sha256[:8]>.ext`/`<sha256[:8]>.json` image/metadata pairs.

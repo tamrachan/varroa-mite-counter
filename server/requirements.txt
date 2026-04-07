@@ -1,3 +1,5 @@
 starlette
 uvicorn
-#ultralytics
+python-multipart
+python-magic
+ultralytics
