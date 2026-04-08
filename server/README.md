@@ -34,3 +34,29 @@ Cache checking is implemented, so re-running on the same image should return the
 - Images are saved to `server/data` as `<sha256>.ext`/`<sha256>.json` image/metadata pairs.
 - Supported image formats: JPEG, PNG, HEIC, RAW.
 - Deduplication is enforced by cache check. If the hash exists, the previous count is returned.
+
+## Example Metadata
+
+```json
+{
+    "time": "2026-04-08T14:48:07.246230+00:00",
+    "hash": "0a7899583c6d0f6c0f6bc95f5242a01c461c61cade95067d7ba48dd3856e1123",
+    "name": "IMG_5702.jpg",
+    "type": "image/jpeg",
+    "size": 6126100,
+    "count": 14,
+    "boxes": [
+        {
+            "xywhn": [
+                0.41205963492393494,
+                0.11487293243408203,
+                0.011139804497361183,
+                0.008542893454432487
+            ],
+            "conf": 0.5900094509124756
+        },
+        ...
+    ]
+}
+```
+
