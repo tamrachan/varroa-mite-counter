@@ -26,7 +26,10 @@ DATA_DIR.mkdir(exist_ok=True)
 MAX_UPLOAD_SIZE = 50 * (1024 ** 2) # 50 MiB
 
 mime = magic.Magic(mime=True) # For image upload MIME type checking
+print('Loading model weights...')
+t0 = time.perf_counter()
 model = YOLO(str(ROOT / 'model' / 'best.pt'), verbose=False) # Safe to call repeatedly
+print(f'Loaded model in {time.perf_counter() - t0:.2f}s')
 
 
 # MARK: Helpers
@@ -157,4 +160,4 @@ app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], all
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run('server:app', host='127.0.0.1', port=5555, reload=False)
+    uvicorn.run(app, host='127.0.0.1', port=5555) # No hot-reload
