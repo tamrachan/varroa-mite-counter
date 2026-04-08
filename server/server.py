@@ -34,12 +34,20 @@ print(f'Loaded model in {time.perf_counter() - t0:.2f}s')
 
 # MARK: Helpers
 
-def count_varroa_mites(image_path) -> int:
+def count_varroa_mites(image_path) -> dict:
     '''
     Temporary helper function for inference in POST /count.
-    Loads model weights and image, returns an integer.
+    Loads image, runs inference, returns a dict with format:
+    {
+        'count': int, 
+        'boxes': [
+            {'xywhn': [float, float, float, float], 'conf': float} 
+        ... 
+        ]
+    }
     '''
     t0 = time.perf_counter()
+    print(f'Starting inference on {image_path.name}')
     '''
     NB: imgsz, max_det, conf and iou are temporary magic numbers
     copied directly from https://github.com/jodivaso/varrodetector/blob/main/varroa_mite_gui.py
@@ -57,9 +65,16 @@ def count_varroa_mites(image_path) -> int:
 
     elapsed = time.perf_counter() - t0
     print(f"[count_varroa_mites] Inference: {elapsed:.2f}s")
-    count = len(results[0].boxes.xyxy)
+    
+    result = results[0]
+    xywhn = result.boxes.xywhn.tolist() # [[center_x, center_y, width, height], ...]
+    confs = result.boxes.conf.tolist()  # [confidence, ...]
+    boxes = [{'xywhn': _xywhn, 'conf': _conf} for _xywhn, _conf in zip(xywhn, confs)]
 
-    return count
+    return {
+        'count': len(xywhn),
+        'boxes': boxes,
+    }
 
 
 # MARK: Endpoints
@@ -129,23 +144,26 @@ async def count(request: Request):
             'type': mime_type,
             'size': len(image_bytes),
             'count': None, # Varroa mite count (for later)
+            'boxes': None, # Detected bboxes (for later)
         }
         with open(DATA_DIR / metadata_filename, 'w') as file:
             json.dump(metadata, file, indent=4)
 
     # Run inference
     try:
-        count = count_varroa_mites(DATA_DIR / image_filename)
+        result = count_varroa_mites(DATA_DIR / image_filename)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f'Inference failed: {e}')
 
     # Update metadata
-    metadata['count'] = count
+    metadata['count'] = result['count']
+    metadata['boxes'] = result['boxes']
+
     with open(DATA_DIR / metadata_filename, 'w') as file:
         json.dump(metadata, file, indent=4)
 
     # Return predicted count
-    return JSONResponse({'count': count})
+    return JSONResponse({'count': result['count']})
 
 
 # MARK: Application
