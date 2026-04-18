@@ -10,7 +10,7 @@ body {
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: safe center;
     padding: 10px;
     position: relative;
     overflow-x: hidden;
@@ -136,12 +136,24 @@ input[type="file"] {
     margin-bottom: 20px;
 }
 
+.preview-canvas {
+    position: relative;
+    margin-bottom: 10px;
+}
+
 .image-preview img {
     width: 100%;
+    height: auto;
     border-radius: 8px;
-    max-height: 300px;
-    object-fit: cover;
-    margin-bottom: 10px;
+    display: block;
+}
+
+.detection-box {
+    position: absolute;
+    border: 1px solid rgb(255, 0, 0);
+    background: rgba(255, 230, 0, 0);
+    pointer-events: none;
+    box-sizing: border-box;
 }
 
 .preview-info {
@@ -166,16 +178,16 @@ button {
     transition: all 0.2s;
 }
 
-.btn-analyze {
+.btn-analyse {
     background: #FFD700;
     color: #333;
 }
 
-.btn-analyze:hover:not(:disabled) {
+.btn-analyse:hover:not(:disabled) {
     background: #FFC700;
 }
 
-.btn-analyze:disabled {
+.btn-analyse:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -286,7 +298,6 @@ button {
 
     .container {
         padding: 20px 15px;
-        max-height: 85vh;
         width: 100%;
     }
 
@@ -311,10 +322,6 @@ button {
 
     .upload-hint {
         font-size: 11px;
-    }
-
-    .image-preview img {
-        max-height: 250px;
     }
 
     .result-value {

@@ -1,9 +1,10 @@
-const API_URL = 'http://localhost:5555'; 
+const API_URL = `http://${window.location.hostname}:5555`;
 
 // DOM Elements
 const uploadArea = document.getElementById('uploadArea');
 const imageInput = document.getElementById('imageInput');
 const imagePreview = document.getElementById('imagePreview');
+const previewCanvas = document.getElementById('previewCanvas');
 const previewImage = document.getElementById('previewImage');
 const previewInfo = document.getElementById('previewInfo');
 const loading = document.getElementById('loading');
@@ -74,6 +75,7 @@ function handleFileSelect(file) {
         uploadArea.style.display = 'none';
         buttonGroup.style.display = 'flex';
         result.style.display = 'none';
+        clearBoxes();
         clearError();
     };
     reader.readAsDataURL(file);
@@ -109,7 +111,7 @@ async function analyseImage() {
         }
 
         const data = await response.json();
-        displayResult(data.count);
+        displayResult(data);
     } catch (error) {
         loading.style.display = 'none';
         showError(`Failed to analyse image: ${error.message}`);
@@ -119,12 +121,32 @@ async function analyseImage() {
 }
 
 // Display the result of the analysis
-function displayResult(count) {
-    resultCount.textContent = count;
-    resultText.textContent = count === 1 ? 'mite detected' : 'mites detected';
+function displayResult(data) {
+    resultCount.textContent = data.count;
+    resultText.textContent = data.count === 1 ? 'mite detected' : 'mites detected';
     result.classList.remove('error');
     result.classList.add('success');
     result.style.display = 'block';
+    drawBoxes(data.boxes || []);
+}
+
+// Draw translucent red boxes over the preview image from xywhn [cx, cy, w, h]
+function drawBoxes(boxes) {
+    clearBoxes();
+    for (const { xywhn } of boxes) {
+        const [cx, cy, w, h] = xywhn;
+        const box = document.createElement('div');
+        box.className = 'detection-box';
+        box.style.left = `${(cx - w / 2) * 100}%`;
+        box.style.top = `${(cy - h / 2) * 100}%`;
+        box.style.width = `${w * 100}%`;
+        box.style.height = `${h * 100}%`;
+        previewCanvas.appendChild(box);
+    }
+}
+
+function clearBoxes() {
+    previewCanvas.querySelectorAll('.detection-box').forEach(el => el.remove());
 }
 
 //clear the selected image and reset the UI
@@ -135,6 +157,7 @@ function clearImage() {
     uploadArea.style.display = 'block';
     buttonGroup.style.display = 'none';
     result.style.display = 'none';
+    clearBoxes();
     clearError();
 }
 
