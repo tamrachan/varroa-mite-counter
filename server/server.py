@@ -117,19 +117,19 @@ async def count(request: Request):
 
     # Get and check hash against saved images
     image_hash = hashlib.sha256(image_bytes).hexdigest()
+    short_hash = image_hash[:8]
 
     # Construct filenames
-    image_filename = image_hash + '.' + accepted_types[mime_type] # Derive extension from mime type
-    metadata_filename = image_hash + '.json'
+    image_filename = short_hash + '.' + accepted_types[mime_type] # Derive extension from mime type
+    metadata_filename = short_hash + '.json'
 
     if (DATA_DIR / metadata_filename).exists():
         # We already have this image stored, check metadata and return existing count if not null
-        with open(DATA_DIR / (image_hash + '.json'), 'r') as file:
+        with open(DATA_DIR / (short_hash + '.json'), 'r') as file:
             metadata = json.load(file)
-        count = metadata['count']
-        if count is not None:
-            return JSONResponse({'count': count})
-    
+        if metadata['count'] is not None:
+            return JSONResponse(metadata)
+
     else:
         # This is a new file
         # Save image file
@@ -162,8 +162,8 @@ async def count(request: Request):
     with open(DATA_DIR / metadata_filename, 'w') as file:
         json.dump(metadata, file, indent=4)
 
-    # Return predicted count
-    return JSONResponse({'count': result['count']})
+    # Return metadata
+    return JSONResponse(metadata)
 
 
 # MARK: Application
@@ -178,4 +178,4 @@ app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], all
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host='127.0.0.1', port=5555) # No hot-reload
+    uvicorn.run(app, host='0.0.0.0', port=5555) # No hot-reload
