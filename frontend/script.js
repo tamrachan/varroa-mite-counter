@@ -1,4 +1,8 @@
-const API_URL = `http://${window.location.hostname}:5555`;
+// Same-origin in production (served by nginx proxying /count → 127.0.0.1:5555).
+// In local dev with a static file server on a different port, hit the API on 5555 of the same host.
+const API_URL = window.location.port && window.location.port !== '5555'
+    ? `${window.location.protocol}//${window.location.hostname}:5555`
+    : '';
 
 // DOM Elements
 const uploadArea = document.getElementById('uploadArea');

@@ -209,3 +209,6 @@ __marimo__/
 # Custom
 working/
 server/data/
+
+# Private
+deploy/wireguard

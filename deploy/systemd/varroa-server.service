@@ -1,0 +1,16 @@
+[Unit]
+Description=Varroa mite counter inference server
+After=network.target
+
+[Service]
+Type=simple
+User=mutantcacti
+WorkingDirectory=/home/mutantcacti/varroa-mite-counter
+Environment=VARROA_HOST=127.0.0.1
+Environment=VARROA_PORT=5555
+ExecStart=/home/mutantcacti/varroa-mite-counter/.venv/bin/python server/server.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
