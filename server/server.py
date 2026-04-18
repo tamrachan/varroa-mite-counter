@@ -3,6 +3,7 @@ Varroa-mite-counter POC backend.
 
 Data collection + inference server for the field demo with Andy.
 '''
+import os
 import time
 import json
 import magic
@@ -126,10 +127,9 @@ async def count(request: Request):
         # We already have this image stored, check metadata and return existing count if not null
         with open(DATA_DIR / (image_hash + '.json'), 'r') as file:
             metadata = json.load(file)
-        count = metadata['count']
-        if count is not None:
-            return JSONResponse({'count': count})
-    
+        if metadata['count'] is not None:
+            return JSONResponse(metadata)
+
     else:
         # This is a new file
         # Save image file
@@ -162,8 +162,8 @@ async def count(request: Request):
     with open(DATA_DIR / metadata_filename, 'w') as file:
         json.dump(metadata, file, indent=4)
 
-    # Return predicted count
-    return JSONResponse({'count': result['count']})
+    # Return metadata
+    return JSONResponse(metadata)
 
 
 # MARK: Application
@@ -178,4 +178,6 @@ app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], all
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host='127.0.0.1', port=5555) # No hot-reload
+    host = os.environ.get('VARROA_HOST', '0.0.0.0')
+    port = int(os.environ.get('VARROA_PORT', 5555))
+    uvicorn.run(app, host=host, port=port) # No hot-reload

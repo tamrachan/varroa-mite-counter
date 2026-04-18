@@ -13,7 +13,7 @@ The server uses [Starlette](https://starlette.dev) + [Uvicorn](https://uvicorn.d
 
 ```sh
 cd server
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python server.py
@@ -23,16 +23,16 @@ To test the current setup, I've been using cURL:
 
 ```sh
 curl --get http://localhost:5555 # should return {"status":"healthy"}
-curl -F 'image=@/path/to/your/image.jpg' http://localhost:5555/count # should return {"count":N} after a long time
+curl -F 'image=@/path/to/your/image.jpg' http://localhost:5555/count # should return metadata (see [Example Metadata](#example-metadata)) after a long time
 ```
 
-Cache checking is implemented, so re-running on the same image should return the same count instantly.
+Cache checking is implemented, so re-running on the same image should return the same result instantly.
 
 ## Goals
 
 - The `/count` endpoint acts as both an inference request and image upload method.
-- Images are saved to `server/data` as `<sha256>.ext`/`<sha256>.json` image/metadata pairs.
-- Supported image formats: JPEG, PNG, HEIC, RAW.
+- Images are saved to `server/data` as `<sha256>[:8].ext`/`<sha256>[:8].json` image/metadata pairs.
+- Supported image formats: JPEG, PNG.
 - Deduplication is enforced by cache check. If the hash exists, the previous count is returned.
 
 ## Example Metadata
