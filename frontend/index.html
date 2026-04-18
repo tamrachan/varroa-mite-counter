@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Varroa Mite Counter</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Varroa Mite Counter</h1>
+        <p class="subtitle">Upload an image to detect varroa mites</p>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-hint">JPEG or PNG </div>
+            <input type="file" id="imageInput" accept="image/jpeg,image/png">
+        </div>
+
+        <div class="result" id="result">
+            <div class="result-label">Varroa Mites Detected</div>
+            <div class="result-value" id="resultCount">0</div>
+            <div class="result-text" id="resultText"></div>
+        </div>
+
+        <div class="button-group" id="buttonGroup" style="display: none;">
+            <button class="btn-analyse" id="analyseBtn">analyse</button>
+            <button class="btn-clear" id="clearBtn">Clear</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
