@@ -1,31 +1,35 @@
-
-const API_URL = 'http://localhost:5555';
+const API_URL = 'http://localhost:5555'; 
 
 // DOM Elements
 const uploadArea = document.getElementById('uploadArea');
 const imageInput = document.getElementById('imageInput');
+const imagePreview = document.getElementById('imagePreview');
+const previewImage = document.getElementById('previewImage');
+const previewInfo = document.getElementById('previewInfo');
+const loading = document.getElementById('loading');
 const result = document.getElementById('result');
 const resultCount = document.getElementById('resultCount');
 const resultText = document.getElementById('resultText');
 const analyseBtn = document.getElementById('analyseBtn');
 const clearBtn = document.getElementById('clearBtn');
 const buttonGroup = document.getElementById('buttonGroup');
+const errorMessage = document.getElementById('errorMessage');
 
 let selectedFile = null;
 
 // Event listeners
 uploadArea.addEventListener('click', () => imageInput.click());
 
-imageInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
+imageInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
     if (file) {
         handleFileSelect(file);
     }
 });
 
-// Drag and drop
-uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
+// Drag and drop box
+uploadArea.addEventListener('dragover', (event) => {
+    event.preventDefault();
     uploadArea.classList.add('dragover');
 });
 
@@ -33,10 +37,10 @@ uploadArea.addEventListener('dragleave', () => {
     uploadArea.classList.remove('dragover');
 });
 
-uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
+uploadArea.addEventListener('drop', (event) => {
+    event.preventDefault();
     uploadArea.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
+    const file = event.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
         handleFileSelect(file);
     }
@@ -45,37 +49,49 @@ uploadArea.addEventListener('drop', (e) => {
 analyseBtn.addEventListener('click', analyseImage);
 clearBtn.addEventListener('click', clearImage);
 
-// Functions
+// Handle file selection and validation
 function handleFileSelect(file) {
     selectedFile = file;
 
-    // Validate file type
+    // Validate file type, only allow JPEG and PNG
     if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        alert('Please upload a JPEG or PNG image');
+        showError('Please upload a JPEG or PNG image');
         return;
     }
 
-    // Validate file size (50MB)
+    // Validate file size (assuming no larger than 50MB)
     if (file.size > 50 * 1024 * 1024) {
-        alert('File is too large (max 50MB)');
+        showError('File is too large (max 50MB)');
         return;
     }
 
-    // Show buttons
-    uploadArea.style.display = 'none';
-    buttonGroup.style.display = 'flex';
-    result.style.display = 'none';
+    // Show preview of the uploaded image
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        previewImage.src = event.target.result;
+        previewInfo.textContent = `${file.name} • ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+        imagePreview.style.display = 'block';
+        uploadArea.style.display = 'none';
+        buttonGroup.style.display = 'flex';
+        result.style.display = 'none';
+        clearError();
+    };
+    reader.readAsDataURL(file);
 }
 
+//analyse the image by sending it to the backend API
 async function analyseImage() {
     if (!selectedFile) {
-        alert('Please select an image first');
+        showError('Please select an image first');
         return;
     }
 
+    // Send the image to the backend API for analysis
     try {
         analyseBtn.disabled = true;
-        analyseBtn.textContent = 'Analyzing...';
+        loading.style.display = 'block';
+        result.style.display = 'none';
+        clearError();
 
         const formData = new FormData();
         formData.append('image', selectedFile);
@@ -85,6 +101,8 @@ async function analyseImage() {
             body: formData,
         });
 
+        loading.style.display = 'none';
+
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.detail || `Server error: ${response.status}`);
@@ -93,13 +111,14 @@ async function analyseImage() {
         const data = await response.json();
         displayResult(data.count);
     } catch (error) {
-        alert(`Failed to analyse image: ${error.message}`);
+        loading.style.display = 'none';
+        showError(`Failed to analyse image: ${error.message}`);
     } finally {
         analyseBtn.disabled = false;
-        analyseBtn.textContent = 'Analyze';
     }
 }
 
+// Display the result of the analysis
 function displayResult(count) {
     resultCount.textContent = count;
     resultText.textContent = count === 1 ? 'mite detected' : 'mites detected';
@@ -108,11 +127,24 @@ function displayResult(count) {
     result.style.display = 'block';
 }
 
+//clear the selected image and reset the UI
 function clearImage() {
     selectedFile = null;
     imageInput.value = '';
+    imagePreview.style.display = 'none';
     uploadArea.style.display = 'block';
     buttonGroup.style.display = 'none';
     result.style.display = 'none';
+    clearError();
 }
 
+// Show error message
+function showError(message) {
+    errorMessage.textContent = message;
+    errorMessage.style.display = 'block';
+}
+
+// Clear error message
+function clearError() {
+    errorMessage.style.display = 'none';
+}

@@ -1,0 +1,349 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #FFE066;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 30%, rgba(255, 224, 102, 0.2) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.background-bees {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.background-bees .item {
+    position: absolute;
+}
+
+.item {
+    width: 100px;
+    opacity: 1;
+}
+
+.Bee1 { top: 5%; left: 8%; transform: rotate(20deg) scale(1.2); }
+.Bee2 { top: 60%; left: 88%; transform: rotate(-25deg) scale(0.85); }
+.Bee3 { top: 20%; left: 75%; transform: rotate(35deg) scale(1.1); }
+.Bee4 { top: 80%; left: 5%; transform: rotate(-10deg) scale(0.9); }
+.Bee5 { top: 15%; left: 88%; transform: rotate(15deg) scale(1.15); }
+.Bee6 { top: 85%; left: 80%; transform: rotate(-30deg) scale(1); }
+.Bee7 { top: 50%; left: 2%; transform: rotate(5deg) scale(1.05); }
+.Bee8 { top: 35%; left: 85%; transform: rotate(-20deg) scale(0.95); }
+.Bee9 { top: 70%; left: 35%; transform: rotate(40deg) scale(1.1); }
+.Bee10 { top: 8%; left: 42%; transform: rotate(-15deg) scale(0.88); }
+.Bee11 { top: 45%; left: 15%; transform: rotate(10deg) scale(1.1); }
+.Bee12 { top: 25%; left: 45%; transform: rotate(-35deg) scale(0.95); }
+.Bee13 { top: 75%; left: 65%; transform: rotate(25deg) scale(1.05); }
+.Bee14 { top: 12%; left: 65%; transform: rotate(-5deg) scale(1.15); }
+.Bee15 { top: 55%; left: 75%; transform: rotate(30deg) scale(0.9); }
+.Bee16 { top: 40%; left: 40%; transform: rotate(-20deg) scale(1.1); }
+.Bee17 { top: 65%; left: 15%; transform: rotate(15deg) scale(0.95); }
+.Bee18 { top: 8%; left: 25%; transform: rotate(40deg) scale(1.05); }
+.Bee19 { top: 88%; left: 42%; transform: rotate(-10deg) scale(1.1); }
+.Bee20 { top: 38%; left: 65%; transform: rotate(22deg) scale(0.88); }
+
+.container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px 20px;
+    max-width: 500px;
+    width: 100%;
+    z-index: 1;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 28px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #777;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    background: #fafafa;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+}
+
+.upload-area:hover {
+    border-color: #FFD700;
+    background: #fffef7;
+}
+
+.upload-area.dragover {
+    border-color: #FFD700;
+    background: #fffef7;
+}
+
+.upload-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.upload-text {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.upload-hint {
+    color: #999;
+    font-size: 12px;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.image-preview {
+    display: none;
+    margin-bottom: 20px;
+}
+
+.image-preview img {
+    width: 100%;
+    border-radius: 8px;
+    max-height: 300px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.preview-info {
+    font-size: 12px;
+    color: #777;
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+button {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-analyze {
+    background: #FFD700;
+    color: #333;
+}
+
+.btn-analyze:hover:not(:disabled) {
+    background: #FFC700;
+}
+
+.btn-analyze:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-clear {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.btn-clear:hover {
+    background: #e0e0e0;
+}
+
+.result {
+    display: none;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.result.success {
+    background: transparent;
+    border: none;
+}
+
+.result.error {
+    background: transparent;
+    border: none;
+}
+
+.result-label {
+    color: #999;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.result-value {
+    font-size: 56px;
+    font-weight: 700;
+    color: #FFD700;
+    margin: 5px 0;
+}
+
+.result.error .result-value {
+    color: #f44336;
+}
+
+.result.success .result-value {
+    color: #4CAF50;
+}
+
+.result-text {
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.spinner {
+    border: 3px solid #eee;
+    border-top: 3px solid #FFD700;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: #777;
+    font-size: 14px;
+}
+
+.error-message {
+    color: #f44336;
+    font-size: 13px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #fef5f5;
+    border-radius: 6px;
+    display: none;
+    border-left: 3px solid #f44336;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 8px;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 20px;
+    }
+
+    .container {
+        padding: 20px 15px;
+        max-height: 85vh;
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 22px;
+        margin-bottom: 5px;
+    }
+
+    .subtitle {
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+    .upload-area {
+        padding: 25px 12px;
+        margin-bottom: 15px;
+    }
+
+    .upload-text {
+        font-size: 14px;
+    }
+
+    .upload-hint {
+        font-size: 11px;
+    }
+
+    .image-preview img {
+        max-height: 250px;
+    }
+
+    .result-value {
+        font-size: 36px;
+    }
+
+    .result {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .result-label {
+        font-size: 11px;
+    }
+
+    .result-text {
+        font-size: 13px;
+    }
+
+    button {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .button-group {
+        gap: 10px;
+    }
+
+    .item {
+        width: 70px;
+    }
+}
