@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Varroa Mite Counter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Varroa Mite Counter</h1>
+        <p class="subtitle">Upload an image to detect varroa mites</p>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-text">Click to upload or drag and drop</div>
+            <div class="upload-hint">JPEG or PNG </div>
+            <input type="file" id="imageInput" accept="image/jpeg,image/png">
+        </div>
+
+        <div class="image-preview" id="imagePreview">
+            <img id="previewImage" alt="Preview">
+            <div class="preview-info" id="previewInfo"></div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Analysing image...</div>
+        </div>
+
+        <div class="result" id="result">
+            <div class="result-label"> Varroa Mites</div>
+            <div class="result-value" id="resultCount">0</div>
+            <div class="result-text" id="resultText"></div>
+        </div>
+
+        <div class="button-group" id="buttonGroup" style="display: none;">
+            <button class="btn-analyse" id="analyseBtn">analyse</button>
+            <button class="btn-clear" id="clearBtn">Clear</button>
+        </div>
+    </div>
+
+     <div class="background-bees">
+            <img src="Bee.png" class="Bee1 item">
+            <img src="BeeFlipped.png" class="Bee2 item">
+            <img src="BeeFlipped.png" class="Bee3 item">
+            <img src="BeeFlipped.png" class="Bee4 item">
+            <img src="BeeFlipped.png" class="Bee5 item">
+            <img src="BeeFlipped.png" class="Bee6 item">
+            <img src="Bee.png" class="Bee7 item">
+            <img src="Bee.png" class="Bee8 item">
+            <img src="Bee.png" class="Bee9 item">
+            <img src="Bee.png" class="Bee10 item">
+            <img src="BeeFlipped.png" class="Bee11 item">
+            <img src="Bee.png" class="Bee12 item">
+            <img src="BeeFlipped.png" class="Bee13 item">
+            <img src="Bee.png" class="Bee14 item">
+            <img src="BeeFlipped.png" class="Bee15 item">
+            <img src="Bee.png" class="Bee16 item">
+            <img src="BeeFlipped.png" class="Bee17 item">
+            <img src="Bee.png" class="Bee18 item">
+            <img src="BeeFlipped.png" class="Bee19 item">
+            <img src="Bee.png" class="Bee20 item">
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
