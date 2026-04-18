@@ -1,5 +1,5 @@
 upstream varroa_backend {
-	server 10.0.0.2:5555 max_fails=1 fail_timeout=5s;  # RTX 4090 WireGuard tunnel
+	server 10.0.0.2:5555 max_fails=1 fail_timeout=5s;   # RTX 4090 WireGuard tunnel
 	server 127.0.0.1:5555 backup;                       # local CPU fallback
 }
 
