@@ -89,6 +89,13 @@ h1 {
     font-size: 14px;
 }
 
+.warning {
+    text-align: center;
+    color: #ef6464;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
 .upload-area {
     border: 2px dashed #ddd;
     border-radius: 8px;
