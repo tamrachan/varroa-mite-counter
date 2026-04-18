@@ -5,7 +5,7 @@ upstream varroa_backend {
 
 server {
 	server_name fb.mutantcacti.com;
-	root /var/www/fb;
+	root /var/www/varroa-mite-counter/frontend;
 	index index.html;
 
 	location = /count {
@@ -25,10 +25,4 @@ server {
 	}
 
 	listen 80;
-}
-
-server {
-	listen 80;
-	server_name fb.mutantcacti.com;
-	return 301 https://$host$request_uri;
 }
